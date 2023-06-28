@@ -1,4 +1,4 @@
-from .models import User
+from base.models import User
 from rest_framework.serializers import ModelSerializer, EmailField
 from django.contrib.auth.hashers import make_password
 
@@ -26,14 +26,12 @@ class CreateUserSerializer(ModelSerializer):
     model = User
     fields = ['user_id', 'password', 'user_type', 'phone', 'name', 'email']
 
-def create(self, validated_data):
-  # 비밀번호 해싱
-  password = validated_data.pop('password')
-  hashed_password = make_password(password)
+  def create(self, validated_data):
+    password = validated_data.pop('password')
+    hashed_password = make_password(password)
 
-  # User 객체 생성
-  user = User.objects.create(password=hashed_password, **validated_data)
-  return user
+    user = User.objects.create(password=hashed_password, **validated_data)
+    return user
       
       
   # def create(self, validated_data):
