@@ -2,20 +2,6 @@ from base.models import User, Profile
 from rest_framework import serializers
 from django.contrib.auth.hashers import make_password
 
-# class CreateUserSerializer(serializers.ModelSerializer):
-#     class Meta:
-#       model = User
-#       fields = ['user_id', 'password', 'user_type', 'phone']
-      
-#     class Meta:
-#       model = Profile
-#       fields = ['name', 'email']
-
-
-# class ProfileSerializer(serializers.ModelSerializer):
-#   class Meta:
-#     model = Profile
-#     fields = ['name']
     
 class UserSerializer(serializers.ModelSerializer):
   class Meta:

@@ -3,8 +3,11 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.views import APIView
 from .serializers import CreateUserSerializer, CreateProfileSerializer
+from django.contrib.auth import authenticate
+from datetime import datetime, timedelta
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
     @classmethod
@@ -31,14 +34,50 @@ def getRoute(request):
   return Response(router)
 
 
+access_token_expire = timedelta(minutes=2)
+
+class LoginAPIView(APIView):
+  def post(selt, request):
+    user = authenticate(
+      user_id=request.data.get('user_id'),
+      password=request.data.get('password')
+    )
+    
+    if user is not None:
+      # token = TokenObtainPairSerializer.get_token(user)
+      refresh = RefreshToken.for_user(user)
+      
+      refresh_token = str(refresh)
+      access_token = str(refresh.access_token)
+      
+      resData = {
+          'message': 'login success',
+          'token': {
+              'access': access_token,
+              'refresh': refresh_token,
+              'access_token_expired_at': (datetime.now() + access_token_expire).strftime(
+                "%Y-%m-%d %H:%M:%S")
+          },
+      }
+      
+      response = Response(data=resData, status=status.HTTP_200_OK)
+      response.set_cookie(key='access_token', value=access_token, httponly=True)
+      response.set_cookie(key='refresh_token', value=refresh_token, httponly=True)
+      return response
+      
+    else:
+      return Response(status=status.HTTP_400_BAD_REQUEST)
+      
+  
             
 
-class RegisterView(APIView):
+class RegisterAPIView(APIView):
   def post(self, request):
     user_data = {
       'user_id': request.data.get('user_id'),
       'password': request.data.get('password'),
     }
+    print(user_data['user_id'])
     profile_data = {
       'name': request.data.get('name'),
       'phone': request.data.get('phone'),
