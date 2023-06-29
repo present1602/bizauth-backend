@@ -1,8 +1,8 @@
-from base.models import User
-from rest_framework.serializers import ModelSerializer, EmailField
+from base.models import User, Profile
+from rest_framework import serializers
 from django.contrib.auth.hashers import make_password
 
-# class CreateUserSerializer(ModelSerializer):
+# class CreateUserSerializer(serializers.ModelSerializer):
 #     class Meta:
 #       model = User
 #       fields = ['user_id', 'password', 'user_type', 'phone']
@@ -12,27 +12,56 @@ from django.contrib.auth.hashers import make_password
 #       fields = ['name', 'email']
 
 
-# class ProfileSerializer(ModelSerializer):
+# class ProfileSerializer(serializers.ModelSerializer):
 #   class Meta:
 #     model = Profile
 #     fields = ['name']
     
-
-
-class CreateUserSerializer(ModelSerializer):
-  email = EmailField(required=False)
-  
+class UserSerializer(serializers.ModelSerializer):
   class Meta:
     model = User
-    fields = ['user_id', 'password', 'user_type', 'phone', 'name', 'email']
+    fields = '__all__'
+
+
+class CreateProfileSerializer(serializers.ModelSerializer):
+  user = serializers.PrimaryKeyRelatedField(queryset=User.objects.all()) 
+  email = serializers.EmailField(required=False)
+  
+  class Meta:
+    model = Profile
+    fields = ['name', 'phone','email', 'user']
+    
+    
+class CreateUserSerializer(serializers.ModelSerializer):
+  class Meta:
+    model = User
+    fields = ['user_id', 'password']
 
   def create(self, validated_data):
     password = validated_data.pop('password')
     hashed_password = make_password(password)
 
-    user = User.objects.create(password=hashed_password, **validated_data)
-    return user
+    user_instance = User.objects.create(password=hashed_password, **validated_data)
+    
+    return user_instance
       
+# class CreateProfileSerializer(serializers.ModelSerializer):
+#   email = EmailField(required=False)
+#   user = UserSerializer()
+  
+#   class Meta:
+#     model = Profile
+#     fields = ['name', 'phone', 'email', 'user']
+
+#   def create(self, validated_data):
+#     user = self.context['request'].user  # 사용자 정보 가져오기
+#     validated_data['user'] = user  # 사용자를 profile의 user 필드에 할당
+
+#     return super().create(validated_data)
+          
+
+  
+    
       
   # def create(self, validated_data):
   #   user = User.objects.create(

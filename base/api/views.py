@@ -4,8 +4,7 @@ from rest_framework import status
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework.views import APIView
-from .serializers import CreateUserSerializer
-
+from .serializers import CreateUserSerializer, CreateProfileSerializer
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
     @classmethod
@@ -32,24 +31,36 @@ def getRoute(request):
   return Response(router)
 
 
+            
+
 class RegisterView(APIView):
   def post(self, request):
-    serializer = CreateUserSerializer(data=request.data)
-    if serializer.is_valid():
-      serializer.save()
+    user_data = {
+      'user_id': request.data.get('user_id'),
+      'password': request.data.get('password'),
+    }
+    profile_data = {
+      'name': request.data.get('name'),
+      'phone': request.data.get('phone'),
+    }
+    email = request.data.get('email')
+    if email is not None and email != '':
+      profile_data['email'] = email
       
-      return Response(status=status.HTTP_200_OK)
-    
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    user_serializer = CreateUserSerializer(data=user_data)
 
+    if user_serializer.is_valid():
+      
+      user_instance = user_serializer.save()
+      profile_data['user'] = user_instance.id
+      
+      profile_serializer = CreateProfileSerializer(data=profile_data)
+      
+      if profile_serializer.is_valid():
+        profile_serializer.save()
+        return Response(status=status.HTTP_200_OK)
 
-      # user = User.objects.create_user(
-      #     user_id=serializer.validated_data['user_id'],
-      #     password=serializer.validated_data['password'],
-      #     name=serializer.validated_data['name'],
-      #     phone=serializer.validated_data['phone'],
-      #     email=serializer.validated_data.get('email')
-      # )
-      # profile = Profile.objects.create(
-      #     user=user,
-      #     name=serializer.validated_data['name'],
+      return Response(profile_serializer.errors, status=status.HTTP_400_BAD_REQUEST)  
+
+    return Response(user_serializer.errors, status=status.HTTP_400_BAD_REQUEST)  
+  
