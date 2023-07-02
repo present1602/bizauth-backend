@@ -47,10 +47,10 @@ DJANGO_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'base',
-    'corsheaders',
 ]
 
 THIRD_PARTY_APPS = [
+    'corsheaders',
     'rest_framework',
     'rest_framework_simplejwt.token_blacklist',
 ]
@@ -119,11 +119,18 @@ MIDDLEWARE = [
     
 ]
 
-CORS_ORIGIN_ALLOW_ALL = True
+# CORS_ORIGIN_ALLOW_ALL = True
 
 # CORS_ORIGIN_WHITELIST = [
 #     'http://localhost',
 # ]
+
+CORS_ALLOWED_ORIGINS = [
+    'http://localhost:5173',  # 허용할 프론트엔드 도메인
+]
+
+CORS_ALLOW_CREDENTIALS = True 
+# 쿠키가 cross-site HTTP 요청에 포함될 수 있다  # 동일한 도메인에 포트 다른 경우도 cross-site임.
 
 
 ROOT_URLCONF = 'bizauth-backend.urls'

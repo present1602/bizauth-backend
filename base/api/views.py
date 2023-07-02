@@ -44,7 +44,6 @@ class LoginAPIView(APIView):
     )
     
     if user is not None:
-      # token = TokenObtainPairSerializer.get_token(user)
       refresh = RefreshToken.for_user(user)
       
       refresh_token = str(refresh)
@@ -61,13 +60,23 @@ class LoginAPIView(APIView):
       }
       
       response = Response(data=resData, status=status.HTTP_200_OK)
-      response.set_cookie(key='access_token', value=access_token, httponly=True)
-      response.set_cookie(key='refresh_token', value=refresh_token, httponly=True)
+      """
+        # response.set_cookie(key='access_token', value=access_token, httponly=False, path='/', samesite=None, secure=True)
+        # response.set_cookie(key='refresh_token', value=refresh_token, httponly=False, path='/', samesite=None, secure=True)
+        # Secure 속성은 HTTPS 연결에서만 쿠키를 전송
+        https://stackoverflow.com/questions/46288437/set-cookies-for-cross-origin-requests/46412839#46412839
+        when port different set_cookie : Secure=True, samesiteNone & in chrome and firefox
+      """
       return response
+      
       
     else:
       return Response(status=status.HTTP_400_BAD_REQUEST)
       
+      # response = Response(data=resData, status=status.HTTP_200_OK)
+      # response.set_cookie(key='access_token', value=access_token, httponly=True)
+      # response.set_cookie(key='refresh_token', value=refresh_token, httponly=True)
+      # return response
   
             
 
