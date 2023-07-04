@@ -14,9 +14,7 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer,Refre
 
 #     refresh = RefreshToken.for_user(user)
 #     token['refresh'] = str(refresh)
-        
 #     return token
-
 
 # class MyTokenObtainPairView(TokenObtainPairView):
 #   serializer_class = MyTokenObtainPairSerializer
