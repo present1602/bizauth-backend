@@ -1,8 +1,27 @@
 from base.models import User, Profile
 from rest_framework import serializers
 from django.contrib.auth.hashers import make_password
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer,RefreshToken
 
-    
+
+# class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
+#   @classmethod
+#   def get_token(cls, user):
+#     token = super().get_token(user)
+
+#     token['user_id'] = user.user_id
+#     token['user_uuid'] = str(user.id)
+
+#     refresh = RefreshToken.for_user(user)
+#     token['refresh'] = str(refresh)
+        
+#     return token
+
+
+# class MyTokenObtainPairView(TokenObtainPairView):
+#   serializer_class = MyTokenObtainPairSerializer
+      
+      
 class UserSerializer(serializers.ModelSerializer):
   class Meta:
     model = User
