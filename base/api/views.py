@@ -5,59 +5,58 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.views import APIView
-from .serializers import CreateUserSerializer, CreateProfileSerializer, CustomTokenObtainPairSerializer
+from .serializers import CreateUserSerializer, CreateProfileSerializer
 from django.contrib.auth import authenticate
 from datetime import datetime, timedelta
 
-      
+
 @api_view(['GET'])
 def getRoute(request):
-  router = [
-    '/api/token',  
-    '/api/token/refresh'
-  ]
-  
-  return Response(router)
+    router = [
+        '/api/token',
+        '/api/token/refresh'
+    ]
+
+    return Response(router)
 
 
 access_token_expire = timedelta(minutes=2)
 
 # class UserAPIView(APIView):
 #   def get(request):
-    
-    
+
+
 class LoginAPIView(APIView):
-  def post(self, request):
-    user = authenticate(
-      user_id=request.data.get('user_id'),
-      password=request.data.get('password')
-    )
-    
-    if user is not None:
-      refresh = RefreshToken.for_user(user)
-      
-      refresh_token = str(refresh)
-      access_token = str(refresh.access_token)
-      
-      resData = {
-          'message': 'login success',
-          'token': {
-              'access': str(access_token),
-              'refresh': refresh_token,
-              'access_token_expired_at': (datetime.now() + access_token_expire).strftime(
-                "%Y-%m-%d %H:%M:%S")
-          },
-      }
-      
-      response = Response(data=resData, status=status.HTTP_200_OK)
-     
-      return response
-      
-      
-    else:
-      return Response(status=status.HTTP_400_BAD_REQUEST)
-      
-      """
+    def post(self, request):
+        user = authenticate(
+            user_id=request.data.get('user_id'),
+            password=request.data.get('password')
+        )
+
+        if user is not None:
+            refresh = RefreshToken.for_user(user)
+
+            refresh_token = str(refresh)
+            access_token = str(refresh.access_token)
+
+            resData = {
+                'message': 'login success',
+                'token': {
+                    'access': str(access_token),
+                    'refresh': refresh_token,
+                    'access_token_expired_at': (datetime.now() + access_token_expire).strftime(
+                        "%Y-%m-%d %H:%M:%S")
+                },
+            }
+
+            response = Response(data=resData, status=status.HTTP_200_OK)
+
+            return response
+
+        else:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+            """
         # response.set_cookie(key='access_token', value=access_token, httponly=False, path='/', samesite=None, secure=True)
         # response.set_cookie(key='refresh_token', value=refresh_token, httponly=False, path='/', samesite=None, secure=True)
         # Secure 속성은 HTTPS 연결에서만 쿠키를 전송
@@ -69,43 +68,44 @@ class LoginAPIView(APIView):
         Access-Control-Allow-Credentials: true
         The client needs to send all requests with withCredentials: true option
       """
-      
-      # response = Response(data=resData, status=status.HTTP_200_OK)
-      # response.set_cookie(key='access_token', value=access_token, httponly=True)
-      # response.set_cookie(key='refresh_token', value=refresh_token, httponly=True)
-      # return response
-  
-            
+
+            # response = Response(data=resData, status=status.HTTP_200_OK)
+            # response.set_cookie(key='access_token', value=access_token, httponly=True)
+            # response.set_cookie(key='refresh_token', value=refresh_token, httponly=True)
+            # return response
+
 
 class RegisterAPIView(APIView):
-  def post(self, request):
-    user_data = {
-      'user_id': request.data.get('user_id'),
-      'password': request.data.get('password'),
-    }
-    print(user_data['user_id'])
-    profile_data = {
-      'name': request.data.get('name'),
-      'phone': request.data.get('phone'),
-    }
-    email = request.data.get('email')
-    if email is not None and email != '':
-      profile_data['email'] = email
-      
-    user_serializer = CreateUserSerializer(data=user_data)
+    def post(self, request):
+        user_data = {
+            'user_id': request.data.get('user_id'),
+            'password': request.data.get('password'),
+        }
+        print(user_data['user_id'])
+        profile_data = {
+            'name': request.data.get('name'),
+            'phone': request.data.get('phone'),
+        }
+        email = request.data.get('email')
+        if email is not None and email != '':
+            profile_data['email'] = email
 
-    if user_serializer.is_valid():
-      
-      user_instance = user_serializer.save()
-      profile_data['user'] = user_instance.id
-      
-      profile_serializer = CreateProfileSerializer(data=profile_data)
-      
-      if profile_serializer.is_valid():
-        profile_serializer.save()
-        return Response(status=status.HTTP_200_OK)
+        user_serializer = CreateUserSerializer(data=user_data)
 
-      return Response(profile_serializer.errors, status=status.HTTP_400_BAD_REQUEST)  
+        if user_serializer.is_valid():
 
-    return Response(user_serializer.errors, status=status.HTTP_400_BAD_REQUEST)  
-  
+            user_instance = user_serializer.save()
+            profile_data['user'] = user_instance.id
+
+            profile_serializer = CreateProfileSerializer(data=profile_data)
+
+            if profile_serializer.is_valid():
+                profile_serializer.save()
+
+                resData = {'success': True}
+
+                return Response(data=resData, status=status.HTTP_200_OK)
+
+            return Response(profile_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        return Response(user_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
